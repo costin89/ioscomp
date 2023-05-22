@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kompass Sensor</title>
+</head>
+<body>
+  <h1>Kompass Sensor</h1>
+  <button id="permissionButton">Berechtigung erteilen</button>
+  <br><br>
+  <label id="coordinatesLabel"></label>
+
+  <script>
+    // Funktion zum Überprüfen der Berechtigung und Starten des Kompass-Trackings
+    function startCompassTracking() {
+      // Überprüfen, ob der Browser den Zugriff auf den Kompass unterstützt
+      if ('webkitCompass' in window) {
+        // Berechtigung für den Zugriff auf den Kompass anfordern
+        DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              // Berechtigung erteilt, Kompass-Tracking starten
+              window.addEventListener('deviceorientation', handleOrientation);
+            }
+          })
+          .catch(console.error);
+      } else {
+        alert('Kompass wird nicht unterstützt');
+      }
+    }
+
+    // Funktion zum Verarbeiten der Kompassdaten
+    function handleOrientation(event) {
+      // Kompass-Koordinaten abrufen
+      var coordinates = event.webkitCompassHeading;
+
+      // Koordinaten im Label anzeigen
+      var coordinatesLabel = document.getElementById('coordinatesLabel');
+      coordinatesLabel.textContent = 'Kompass-Koordinaten: ' + coordinates;
+    }
+
+    // Event-Handler für den Klick auf den Berechtigungs-Button
+    var permissionButton = document.getElementById('permissionButton');
+    permissionButton.addEventListener('click', startCompassTracking);
+  </script>
+</body>
+</html>
