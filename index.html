@@ -5,8 +5,10 @@
 </head>
 <body>
     <h1>Orientation Labels</h1>
+    <button onclick="requestDevicePermission()">Berechtigung anfordern</button>
+
     <script>
-        function getAccel() {
+        function requestDevicePermission() {
             DeviceMotionEvent.requestPermission().then(response => {
                 if (response == 'granted') {
                     // Add a listener to get smartphone acceleration 
@@ -22,9 +24,6 @@
                 }
             });
         }
-
-        // Call the getAccel() function
-        getAccel();
     </script>
 </body>
 </html>
