@@ -13,8 +13,7 @@
     // Funktion zum Überprüfen der Berechtigung und Starten des Kompass-Trackings
     function startCompassTracking() {
       // Überprüfen, ob der Browser den Zugriff auf den Kompass unterstützt
-      if ('webkitCompass' in window) {
-        // Berechtigung für den Zugriff auf den Kompass anfordern
+      if ('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
           .then(permissionState => {
             if (permissionState === 'granted') {
