@@ -28,16 +28,57 @@
                     // Add a listener to get smartphone acceleration 
                     // in the XYZ axes (units in m/s^2)
                     window.addEventListener('devicemotion', (event) => {
-                        document.getElementById("accelerationX").textContent = "X-Achse: " + event.acceleration.x;
-                        document.getElementById("accelerationY").textContent = "Y-Achse: " + event.acceleration.y;
-                        document.getElementById("accelerationZ").textContent = "Z-Achse: " + event.acceleration.z;
+                        let accelerationX = event.acceleration.x;
+                        let accelerationY = event.acceleration.y;
+                        let accelerationZ = event.acceleration.z;
+
+                        // Compensate for device orientation
+                        if (window.orientation === 0) { // Portrait
+                            accelerationX = -accelerationX;
+                            accelerationY = -accelerationY;
+                        } else if (window.orientation === 90) { // Landscape (left)
+                            let temp = accelerationX;
+                            accelerationX = accelerationY;
+                            accelerationY = -temp;
+                        } else if (window.orientation === -90) { // Landscape (right)
+                            let temp = accelerationX;
+                            accelerationX = -accelerationY;
+                            accelerationY = temp;
+                        }
+
+                        document.getElementById("accelerationX").textContent = "X-Achse: " + accelerationX;
+                        document.getElementById("accelerationY").textContent = "Y-Achse: " + accelerationY;
+                        document.getElementById("accelerationZ").textContent = "Z-Achse: " + accelerationZ;
                     });
                     // Add a listener to get smartphone orientation 
                     // in the alpha-beta-gamma axes (units in degrees)
                     window.addEventListener('deviceorientation', (event) => {
-                        document.getElementById("alpha").textContent = "Alpha: " + event.alpha;
-                        document.getElementById("beta").textContent = "Beta: " + event.beta;
-                        document.getElementById("gamma").textContent = "Gamma: " + event.gamma;
+                        let alpha = event.alpha;
+                        let beta = event.beta;
+                        let gamma = event.gamma;
+
+                        // Compensate for device orientation
+                        if (window.orientation === 90) { // Landscape (left)
+                            alpha += 90;
+                            if (beta > 0) {
+                                beta = 180 - beta;
+                            } else {
+                                beta = -180 - beta;
+                            }
+                            gamma = -gamma;
+                        } else if (window.orientation === -90) { // Landscape (right)
+                            alpha -= 90;
+                            if (beta > 0) {
+                                beta = -180 + beta;
+                            } else {
+                                beta = 180 + beta;
+                            }
+                            gamma = -gamma;
+                        }
+
+                        document.getElementById("alpha").textContent = "Alpha: " + alpha;
+                        document.getElementById("beta").textContent = "Beta: " + beta;
+                        document.getElementById("gamma").textContent = "Gamma: " + gamma;
                     });
                 }
             });
@@ -58,8 +99,16 @@
         }
 
         function handleOrientation(event) {
-            var coordinates = event.webkitCompassHeading;
-            var coordinatesLabel = document.getElementById('coordinatesLabel');
+            let coordinates = event.webkitCompassHeading;
+
+            // Compensate for device orientation
+            if (window.orientation === 90) { // Landscape (left)
+                coordinates -= 90;
+            } else if (window.orientation === -90) { // Landscape (right)
+                coordinates += 90;
+            }
+
+            let coordinatesLabel = document.getElementById('coordinatesLabel');
             coordinatesLabel.textContent = 'Kompass-Koordinaten: ' + coordinates;
         }
 
