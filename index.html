@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Orientation Labels</title>
+    <title>Orientation and Compass Labels</title>
 </head>
 <body>
-    <h1>Orientation Labels</h1>
-    <button onclick="requestDevicePermission()">Berechtigung anfordern</button>
+    <h1>Orientation and Compass Labels</h1>
+    <button onclick="requestDevicePermission()">Berechtigung für Geräteorientierung</button>
+    <button id="compassPermissionButton">Berechtigung für Kompass</button>
 
     <p>Gerätebeschleunigung (m/s^2):</p>
     <label id="accelerationX">X-Achse: </label><br>
@@ -16,6 +17,9 @@
     <label id="alpha">Alpha: </label><br>
     <label id="beta">Beta: </label><br>
     <label id="gamma">Gamma: </label><br>
+
+    <br><br>
+    <label id="coordinatesLabel"></label>
 
     <script>
         function requestDevicePermission() {
@@ -38,6 +42,32 @@
                 }
             });
         }
+
+        function startCompassTracking() {
+            if ('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                alert('Kompass wird nicht unterstützt');
+            }
+        }
+
+        function handleOrientation(event) {
+            var coordinates = event.webkitCompassHeading;
+            var coordinatesLabel = document.getElementById('coordinatesLabel');
+            coordinatesLabel.textContent = 'Kompass-Koordinaten: ' + coordinates;
+        }
+
+        var permissionButton = document.getElementById('compassPermissionButton');
+        permissionButton.addEventListener('click', startCompassTracking);
+
+        // Call the requestDevicePermission() function
+        requestDevicePermission();
     </script>
 </body>
 </html>
