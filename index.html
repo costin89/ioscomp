@@ -1,38 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Kompass und Gyroskop Sensor</title>
+  <title>Kompass, Gyroskop und Beschleunigungssensor</title>
 </head>
 <body>
-  <h1>Kompass und Gyroskop Sensor</h1>
+  <h1>Kompass, Gyroskop und Beschleunigungssensor</h1>
   <button id="permissionButton">Berechtigung erteilen</button>
   <br><br>
   <label id="compassLabel"></label>
   <br>
   <label id="gyroscopeLabel"></label>
+  <br>
+  <label id="accelerationLabel"></label>
 
   <script>
-    // Funktion zum Überprüfen der Berechtigung und Starten des Kompass- und Gyroskop-Trackings
+    // Funktion zum Überprüfen der Berechtigung und Starten des Kompass-, Gyroskop- und Beschleunigungssensor-Trackings
     function startSensorTracking() {
-      // Überprüfen, ob der Browser den Zugriff auf den Kompass und das Gyroskop unterstützt
+      // Überprüfen, ob der Browser den Zugriff auf den Kompass, das Gyroskop und den Beschleunigungssensor unterstützt
       if (('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission === 'function') &&
-          ('Gyroscope' in window && typeof Gyroscope === 'function')) {
+          ('Gyroscope' in window && typeof Gyroscope === 'function') &&
+          ('DeviceMotionEvent' in window && typeof DeviceMotionEvent.requestPermission === 'function')) {
         Promise.all([
           DeviceOrientationEvent.requestPermission(),
-          Gyroscope.requestPermission()
+          Gyroscope.requestPermission(),
+          DeviceMotionEvent.requestPermission()
         ]).then(permissionStates => {
           const compassPermission = permissionStates[0];
           const gyroscopePermission = permissionStates[1];
-          if (compassPermission === 'granted' && gyroscopePermission === 'granted') {
-            // Berechtigungen erteilt, Kompass- und Gyroskop-Tracking starten
+          const accelerationPermission = permissionStates[2];
+          if (compassPermission === 'granted' && gyroscopePermission === 'granted' && accelerationPermission === 'granted') {
+            // Berechtigungen erteilt, Kompass-, Gyroskop- und Beschleunigungssensor-Tracking starten
             window.addEventListener('deviceorientation', handleOrientation);
             const gyroscope = new Gyroscope();
             gyroscope.addEventListener('reading', handleGyroscope);
             gyroscope.start();
+            getAcceleration();
           }
         }).catch(console.error);
       } else {
-        alert('Kompass oder Gyroskop wird nicht unterstützt');
+        alert('Kompass, Gyroskop oder Beschleunigungssensor wird nicht unterstützt');
       }
     }
 
@@ -64,6 +70,29 @@
         'Alpha: ' + eulerData.alpha + '\n' +
         'Beta: ' + eulerData.beta + '\n' +
         'Gamma: ' + eulerData.gamma;
+    }
+
+    // Funktion zum Verarbeiten der Beschleunigungsdaten
+    function handleAcceleration(event) {
+      // Beschleunigungsdaten abrufen
+      var accelerationData = event.acceleration;
+
+      // Daten im Label anzeigen
+      var accelerationLabel = document.getElementById('accelerationLabel');
+      accelerationLabel.textContent = 'Beschleunigungsdaten:\n' +
+        'X: ' + accelerationData.x + '\n' +
+        'Y: ' + accelerationData.y + '\n' +
+        'Z: ' + accelerationData.z;
+    }
+
+    // Funktion zum Anfordern der Berechtigung für den Beschleunigungssensor und Starten des Beschleunigungssensor-Trackings
+    function getAcceleration() {
+      DeviceMotionEvent.requestPermission().then(response => {
+        if (response === 'granted') {
+          // Berechtigung erteilt, Beschleunigungssensor-Tracking starten
+          window.addEventListener('devicemotion', handleAcceleration);
+        }
+      });
     }
 
     // Event-Handler für den Klick auf den Berechtigungs-Button
