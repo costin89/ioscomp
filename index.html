@@ -7,6 +7,16 @@
     <h1>Orientation Labels</h1>
     <button onclick="requestDevicePermission()">Berechtigung anfordern</button>
 
+    <p>Gerätebeschleunigung (m/s^2):</p>
+    <label id="accelerationX">X-Achse: </label><br>
+    <label id="accelerationY">Y-Achse: </label><br>
+    <label id="accelerationZ">Z-Achse: </label><br><br>
+
+    <p>Geräteorientierung (Grad):</p>
+    <label id="alpha">Alpha: </label><br>
+    <label id="beta">Beta: </label><br>
+    <label id="gamma">Gamma: </label><br>
+
     <script>
         function requestDevicePermission() {
             DeviceMotionEvent.requestPermission().then(response => {
@@ -14,12 +24,16 @@
                     // Add a listener to get smartphone acceleration 
                     // in the XYZ axes (units in m/s^2)
                     window.addEventListener('devicemotion', (event) => {
-                        console.log(event);
+                        document.getElementById("accelerationX").textContent = "X-Achse: " + event.acceleration.x;
+                        document.getElementById("accelerationY").textContent = "Y-Achse: " + event.acceleration.y;
+                        document.getElementById("accelerationZ").textContent = "Z-Achse: " + event.acceleration.z;
                     });
                     // Add a listener to get smartphone orientation 
                     // in the alpha-beta-gamma axes (units in degrees)
                     window.addEventListener('deviceorientation', (event) => {
-                        console.log(event);
+                        document.getElementById("alpha").textContent = "Alpha: " + event.alpha;
+                        document.getElementById("beta").textContent = "Beta: " + event.beta;
+                        document.getElementById("gamma").textContent = "Gamma: " + event.gamma;
                     });
                 }
             });
