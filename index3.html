@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPS-Koordinaten abrufen</title>
+</head>
+<body>
+  <h1>GPS-Koordinaten abrufen</h1>
+
+  <p id="coordinates">Koordinaten werden abgerufen...</p>
+
+  <button onclick="getLocation()">Standortfreigabe</button>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        document.getElementById("coordinates").innerHTML = "Geolocation wird nicht unterstützt.";
+      }
+    }
+
+    function showPosition(position) {
+      var latitude = position.coords.latitude;
+      var longitude = position.coords.longitude;
+      
+      document.getElementById("coordinates").innerHTML = "Breitengrad: " + latitude + "<br> Längengrad: " + longitude;
+    }
+  </script>
+</body>
+</html>
