@@ -1,49 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Kompass Sensor</title>
+  <title>Kompass und Gyroskop Sensor</title>
 </head>
 <body>
-  <br><br>
-  <center>
-  <h1>Kompass Sensor</h1>
+  <h1>Kompass und Gyroskop Sensor</h1>
   <button id="permissionButton">Berechtigung erteilen</button>
   <br><br>
-  <br><br>
-  <br><br>
-  <label id="coordinatesLabel"></label>
-  </center>
+  <label id="compassLabel"></label>
+  <br>
+  <label id="gyroscopeLabel"></label>
+
   <script>
-    // Funktion zum Überprüfen der Berechtigung und Starten des Kompass-Trackings
-    function startCompassTracking() {
-      // Überprüfen, ob der Browser den Zugriff auf den Kompass unterstützt
-      if ('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission()
-          .then(permissionState => {
-            if (permissionState === 'granted') {
-              // Berechtigung erteilt, Kompass-Tracking starten
-              window.addEventListener('deviceorientation', handleOrientation);
-            }
-          })
-          .catch(console.error);
+    // Funktion zum Überprüfen der Berechtigung und Starten des Kompass- und Gyroskop-Trackings
+    function startSensorTracking() {
+      // Überprüfen, ob der Browser den Zugriff auf den Kompass und das Gyroskop unterstützt
+      if (('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission === 'function') &&
+          ('Gyroscope' in window && typeof Gyroscope === 'function')) {
+        Promise.all([
+          DeviceOrientationEvent.requestPermission(),
+          Gyroscope.requestPermission()
+        ]).then(permissionStates => {
+          const compassPermission = permissionStates[0];
+          const gyroscopePermission = permissionStates[1];
+          if (compassPermission === 'granted' && gyroscopePermission === 'granted') {
+            // Berechtigungen erteilt, Kompass- und Gyroskop-Tracking starten
+            window.addEventListener('deviceorientation', handleOrientation);
+            const gyroscope = new Gyroscope();
+            gyroscope.addEventListener('reading', handleGyroscope);
+            gyroscope.start();
+          }
+        }).catch(console.error);
       } else {
-        alert('Kompass wird nicht unterstützt');
+        alert('Kompass oder Gyroskop wird nicht unterstützt');
       }
     }
 
     // Funktion zum Verarbeiten der Kompassdaten
     function handleOrientation(event) {
       // Kompass-Koordinaten abrufen
-      var coordinates = event.webkitCompassHeading;
+      var compassCoordinates = event.webkitCompassHeading;
 
       // Koordinaten im Label anzeigen
-      var coordinatesLabel = document.getElementById('coordinatesLabel');
-      coordinatesLabel.textContent = 'Kompass-Koordinaten: ' + coordinates;
+      var compassLabel = document.getElementById('compassLabel');
+      compassLabel.textContent = 'Kompass-Koordinaten: ' + compassCoordinates;
+    }
+
+    // Funktion zum Verarbeiten der Gyroskopdaten
+    function handleGyroscope(event) {
+      // Gyroskop-Daten abrufen
+      var gyroscopeData = event.target;
+
+      // Euler-Daten berechnen
+      var eulerData = {
+        alpha: gyroscopeData.x,
+        beta: gyroscopeData.y,
+        gamma: gyroscopeData.z
+      };
+
+      // Daten im Label anzeigen
+      var gyroscopeLabel = document.getElementById('gyroscopeLabel');
+      gyroscopeLabel.textContent = 'Euler-Daten:\n' +
+        'Alpha: ' + eulerData.alpha + '\n' +
+        'Beta: ' + eulerData.beta + '\n' +
+        'Gamma: ' + eulerData.gamma;
     }
 
     // Event-Handler für den Klick auf den Berechtigungs-Button
     var permissionButton = document.getElementById('permissionButton');
-    permissionButton.addEventListener('click', startCompassTracking);
+    permissionButton.addEventListener('click', startSensorTracking);
   </script>
 </body>
 </html>
